@@ -1,0 +1,139 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Budget</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="index.html">Dashboard</a>
+      <a href="add.html">Add Transaction</a>
+      <a href="goal.html">Set Goal</a>
+      <a href="target-date.html">Set Target Date</a>
+      <a href="budget.html">Create Budget</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Create Your Budget</h1>
+
+    <form id="budget-form">
+      <label for="income">Monthly Income:</label>
+      <input type="number" id="income" required>
+
+      <label for="frequency">Income Frequency:</label>
+      <select id="frequency" required>
+        <option value="monthly">Monthly</option>
+        <option value="weekly">Weekly</option>
+        <option value="biweekly">Biweekly</option>
+      </select>
+
+      <div id="fixed-allocation">
+        <h2>Fixed Allocations</h2>
+        <p>Savings: <span id="saving-amount">$0</span></p>
+        <p>Investing: <span id="investing-amount">$0</span></p>
+      </div>
+
+      <div id="categories">
+        <h2>Budget Categories</h2>
+        <div class="category">
+          <label>Food <input type="range" min="0" max="100" value="0" class="category-slider" data-name="Food"></label>
+          <span class="percentage-display">0%</span>
+        </div>
+        <div class="category">
+          <label>Rent <input type="range" min="0" max="100" value="0" class="category-slider" data-name="Rent"></label>
+          <span class="percentage-display">0%</span>
+        </div>
+        <div class="category">
+          <label>Transport <input type="range" min="0" max="100" value="0" class="category-slider" data-name="Transport"></label>
+          <span class="percentage-display">0%</span>
+        </div>
+      </div>
+
+      <button type="button" id="add-category">Add Category</button>
+      <button type="submit">Save Budget</button>
+    </form>
+  </main>
+
+  <script>
+    const form = document.getElementById("budget-form");
+    const savingAmountEl = document.getElementById("saving-amount");
+    const investingAmountEl = document.getElementById("investing-amount");
+    const categoriesDiv = document.getElementById("categories");
+
+    function calculateFixedAllocations(income, monthsRemaining, goalAmount, currentNetWorth = 0) {
+      const monthlyTarget = (goalAmount - currentNetWorth) / monthsRemaining;
+      const savings = monthlyTarget * 0.6;
+      const investing = monthlyTarget * 0.4;
+      return {
+        saving: Math.min(savings, income * 0.5),
+        investing: Math.min(investing, income * 0.5)
+      };
+    }
+
+    function getMonthsBetween(startDate, endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      return (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+    }
+
+    function updateSliders() {
+      const sliders = document.querySelectorAll(".category-slider");
+      let total = 0;
+      sliders.forEach(slider => total += Number(slider.value));
+      sliders.forEach(slider => {
+        slider.max = 100 - total + Number(slider.value);
+      });
+    }
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const income = parseFloat(document.getElementById("income").value);
+      const goal = parseFloat(localStorage.getItem("netWorthGoal") || 0);
+      const targetDate = localStorage.getItem("targetDate");
+      const months = getMonthsBetween(new Date(), targetDate);
+
+      const { saving, investing } = calculateFixedAllocations(income, months, goal);
+
+      savingAmountEl.textContent = `$${saving.toFixed(2)}`;
+      investingAmountEl.textContent = `$${investing.toFixed(2)}`;
+
+      const remaining = income - saving - investing;
+      const budget = { income, saving, investing, categories: {} };
+
+      document.querySelectorAll(".category-slider").forEach(slider => {
+        const name = slider.dataset.name;
+        const percentage = parseFloat(slider.value);
+        budget.categories[name] = (remaining * percentage / 100).toFixed(2);
+      });
+
+      localStorage.setItem("budget", JSON.stringify(budget));
+      alert("Budget saved!");
+    });
+
+    document.getElementById("add-category").addEventListener("click", () => {
+      const name = prompt("Enter category name:");
+      if (!name) return;
+
+      const div = document.createElement("div");
+      div.className = "category";
+      div.innerHTML = `
+        <label>${name} <input type="range" min="0" max="100" value="0" class="category-slider" data-name="${name}"></label>
+        <span class="percentage-display">0%</span>
+      `;
+      categoriesDiv.appendChild(div);
+      updateSliders();
+    });
+
+    categoriesDiv.addEventListener("input", e => {
+      if (e.target.classList.contains("category-slider")) {
+        e.target.parentElement.nextElementSibling.textContent = `${e.target.value}%`;
+        updateSliders();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Set Target Date</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="index.html">Dashboard</a>
+      <a href="add.html">Add Transaction</a>
+      <a href="goal.html">Set Goal</a>
+      <a href="target-date.html">Set Target Date</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>When do you plan to attain this net-worth?</h1>
+    <form id="date-form">
+      <input type="date" id="targetDate" required>
+      <button type="submit">Save Date</button>
+    </form>
+  </main>
+
+  <script>
+    document.getElementById("date-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const targetDate = document.getElementById("targetDate").value;
+      localStorage.setItem("targetDate", targetDate);
+      window.location.href = "index.html";
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Set Net-Worth Goal</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="index.html">Dashboard</a>
+      <a href="add.html">Add Transaction</a>
+      <a href="goal.html">Set Goal</a>
+      <a href="target-date.html">Set Target Date</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>What is your goal net-worth?</h1>
+    <form id="goal-form">
+      <input type="number" id="goal" placeholder="Enter your goal net-worth" required>
+      <button type="submit">Save Goal</button>
+    </form>
+  </main>
+
+  <script>
+    document.getElementById("goal-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const goal = document.getElementById("goal").value;
+      localStorage.setItem("netWorthGoal", goal);
+      window.location.href = "index.html";
+    });
+  </script>
+</body>
+</html>
